@@ -1,0 +1,36 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./app/**/*.{js,ts,jsx,tsx}", // Include all files in the `app` folder
+    "./components/**/*.{js,ts,jsx,tsx}", // Include all files in the `components` folder
+  ],
+  theme: {
+    extend: {
+      keyframes: {
+        "fade-in": {
+          "0%": { opacity: 0 },
+          "100%": { opacity: 1 },
+        },
+        "scale-up": {
+          "0%": { transform: "scale(0.8)", opacity: 0 },
+          "100%": { transform: "scale(1)", opacity: 1 },
+        },
+        "bounce-small": {
+          "0%, 100%": { transform: "translateY(-5%)" },
+          "50%": { transform: "translateY(5%)" },
+        },
+        "slide-up": {
+          "0%": { transform: "translateY(100%)" },
+          "100%": { transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        "fade-in": "fade-in 0.3s ease-out",
+        "scale-up": "scale-up 0.5s ease-out",
+        "bounce-small": "bounce-small 2s infinite",
+        "slide-up": "slide-up 0.3s ease-out",
+      },
+    },
+  },
+  plugins: [],
+};

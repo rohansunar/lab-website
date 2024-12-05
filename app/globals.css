@@ -2,6 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Add custom font (optional) */
+* {
+  box-sizing: border-box;
+  scrollbar-width:none; /* Firefox */
+  scrollbar-color: #3b82f6 #f1f1f1; /* Firefox */
+}
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2563eb;
+}
+
+html, body {
+  overflow-x: hidden; /* Disable horizontal scrolling */
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  @apply font-sans bg-gray-50 text-gray-800;
+}
+
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -14,8 +50,21 @@
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+.hero_section {
+  background:  linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("./assets/hero/hero-1.png"), no-repeat center center;
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-attachment: cover;
+  padding-top: 170px;
+  padding-bottom: 90px;
+}
+
+/* Hide scrollbar but maintain functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
 }
