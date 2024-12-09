@@ -8,19 +8,16 @@ interface PathologyParams {
 
 import { useEffect, useState, use } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { 
   FaStar, FaMapMarkerAlt, FaPhone, FaClock, 
   FaDirections, FaShare, FaComment, FaChevronRight, 
-  FaRegClock, FaRupeeSign, FaChevronLeft, FaInfoCircle, 
-  FaShoppingCart, FaCalendarAlt, FaCertificate, FaUserMd,
-  FaCheckCircle, FaHospital, FaStethoscope, FaThumbsUp
-} from 'react-icons/fa';
-import heroImage from '@/app/assets/hero/hero-1.png';
-import secondImage from '@/app/assets/hero/hero-1.jpeg';
-import thirdImage from '@/app/assets/hero/hero-1.jpg';
+  FaChevronLeft, FaInfoCircle, 
+  FaShoppingCart, FaCalendarAlt, FaUserMd,
+  FaCheckCircle, FaHospital, FaStethoscope} from 'react-icons/fa';
+import { mockPathologyDetails, walkInTests, homeCollectionTests } from '@/app/data/mockData';
 import { Toast } from '@/app/components/Toast';
 import { useCart } from '@/app/context/CartContext';
+import BreadcrumbSEO from '@/app/components/BreadcrumbSEO';
 
 interface GalleryImage {
   src: string;
@@ -59,7 +56,7 @@ interface PathologyDetails {
   }>;
 }
 
-type TabType = 'overview' | 'walk-in' | 'home-collection' | 'reviews' | 'photos';
+type TabType = 'overview' | 'walk-in' | 'home-collection' | 'reviews';
 
 interface TestType {
   id: string;
@@ -70,233 +67,6 @@ interface TestType {
   reportTime: string;
   discount?: number;
 }
-
-// Add test data
-const walkInTests: TestType[] = [
-  {
-    id: 'w1',
-    name: "X-Ray Chest",
-    price: 599,
-    description: "Digital X-Ray with expert radiologist report",
-    preparation: "No special preparation required",
-    reportTime: "1 hour",
-    discount: 20
-  },
-  {
-    id: 'w2',
-    name: "ECG",
-    price: 399,
-    description: "12-lead ECG with cardiologist report",
-    preparation: "No special preparation",
-    reportTime: "30 minutes",
-    discount: 15
-  },
-  {
-    id: 'w3',
-    name: "MRI Brain",
-    price: 4999,
-    description: "Detailed brain imaging with contrast",
-    preparation: "4-6 hours fasting required",
-    reportTime: "24 hours",
-    discount: 20
-  },
-  {
-    id: 'w4',
-    name: "CT Scan Chest",
-    price: 3499,
-    description: "High resolution chest imaging",
-    preparation: "No special preparation",
-    reportTime: "Same day",
-    discount: 15
-  },
-  {
-    id: 'w5',
-    name: "Ultrasound Abdomen",
-    price: 1299,
-    description: "Complete abdominal scan",
-    preparation: "6 hours fasting",
-    reportTime: "Same day",
-    discount: 10
-  },
-  {
-    id: 'w6',
-    name: "2D Echo",
-    price: 1999,
-    description: "Heart function assessment",
-    preparation: "No special preparation",
-    reportTime: "2 hours",
-    discount: 25
-  },
-  {
-    id: 'w7',
-    name: "Dental X-Ray",
-    price: 499,
-    description: "Digital dental radiography",
-    preparation: "No special preparation",
-    reportTime: "30 minutes",
-    discount: 10
-  }
-];
-
-const homeCollectionTests: TestType[] = [
-  {
-    id: 'h1',
-    name: "Complete Blood Count",
-    price: 499,
-    description: "Comprehensive blood analysis",
-    preparation: "8-10 hours fasting",
-    reportTime: "24 hours",
-    discount: 15
-  },
-  {
-    id: 'h2',
-    name: "Thyroid Profile",
-    price: 899,
-    description: "Complete thyroid function test",
-    preparation: "No special preparation",
-    reportTime: "24 hours",
-    discount: 25
-  },
-  {
-    id: 'h3',
-    name: "Fever Profile",
-    price: 899,
-    description: "Complete Fever function test",
-    preparation: "No special preparation",
-    reportTime: "24 hours",
-    discount: 25
-  },
-  {
-    id: 'h4',
-    name: "Diabetes Profile",
-    price: 999,
-    description: "Complete diabetes screening",
-    preparation: "8-10 hours fasting",
-    reportTime: "24 hours",
-    discount: 20
-  },
-  {
-    id: 'h5',
-    name: "Lipid Profile",
-    price: 699,
-    description: "Complete cholesterol test",
-    preparation: "12 hours fasting",
-    reportTime: "24 hours",
-    discount: 15
-  },
-  {
-    id: 'h6',
-    name: "Kidney Function Test",
-    price: 799,
-    description: "Complete kidney health assessment",
-    preparation: "No special preparation",
-    reportTime: "24 hours",
-    discount: 20
-  },
-  {
-    id: 'h7',
-    name: "Liver Function Test",
-    price: 899,
-    description: "Comprehensive liver panel",
-    preparation: "8 hours fasting",
-    reportTime: "24 hours",
-    discount: 25
-  },
-  {
-    id: 'h8',
-    name: "HbA1c",
-    price: 499,
-    description: "3-month diabetes control test",
-    preparation: "No fasting required",
-    reportTime: "24 hours",
-    discount: 10
-  },
-  {
-    id: 'h9',
-    name: "Vitamin D3",
-    price: 1299,
-    description: "Vitamin D deficiency test",
-    preparation: "No special preparation",
-    reportTime: "48 hours",
-    discount: 30
-  },
-  {
-    id: 'h10',
-    name: "Vitamin B12",
-    price: 899,
-    description: "B12 deficiency assessment",
-    preparation: "No special preparation",
-    reportTime: "24 hours",
-    discount: 20
-  },
-  {
-    id: 'h11',
-    name: "Iron Studies",
-    price: 999,
-    description: "Complete iron profile",
-    preparation: "8 hours fasting",
-    reportTime: "24 hours",
-    discount: 15
-  },
-  {
-    id: 'h12',
-    name: "PSA Test",
-    price: 799,
-    description: "Prostate specific antigen",
-    preparation: "No special preparation",
-    reportTime: "24 hours",
-    discount: 20
-  },
-  {
-    id: 'h13',
-    name: "Hormone Panel",
-    price: 2499,
-    description: "Complete hormone assessment",
-    preparation: "8 hours fasting",
-    reportTime: "48 hours",
-    discount: 25
-  }
-];
-
-// Add this helper function for schema markup
-const generateBreadcrumbSchema = ({name, location, area}: PathologyDetails) => {
-  return {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Home",
-        "item": "https://healthquicklab.com"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": "Pathology Labs",
-        "item": "https://healthquicklab.com/pathology"
-      },
-      {
-        "@type": "ListItem",
-        "position": 3,
-        "name": location,
-        "item": `https://healthquicklab.com/pathology/${location.toLowerCase()}`
-      },
-      {
-        "@type": "ListItem",
-        "position": 4,
-        "name": area,
-        "item": `https://healthquicklab.com/pathology/${location.toLowerCase()}/${area.toLowerCase()}`
-      },
-      {
-        "@type": "ListItem",
-        "position": 5,
-        "name": name,
-        "item": `https://healthquicklab.com/pathology/${location.toLowerCase()}/${area.toLowerCase()}/${name.toLowerCase().replace(/\s+/g, '-')}`
-      }
-    ]
-  };
-};
 
 export default function PathologyDetails({ params }: { params: Promise<PathologyParams> }) {
   const [details, setDetails] = useState<PathologyDetails | null>(null);
@@ -321,96 +91,14 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
   }>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null);
+  const [toastMessage, setToastMessage] = useState<{
+    message: string;
+    type: 'success' | 'error';
+  } | null>(null);
 
   useEffect(() => {
-    // Mock data - replace with actual API call
-    setDetails({
-      name: "PathCare Labs",
-      categories: ["Blood Tests", "Pathology", "Health Checkup"],
-      location: "Siliguri",
-      area: "Khalpara",
-      rating: 4.2,
-      startingPrice: 299,
-      address: "123, Hospital Road, Khalpara, Siliguri - 734001, West Bengal",
-      phone: "+91 98765 43210",
-      timings: {
-        open: "07:00",
-        close: "20:00",
-        days: "Monday to Saturday"
-      },
-      images: [
-        {
-          src: heroImage.src,
-          alt: "Lab Interior",
-          width: 1920,
-          height: 1080
-        },
-        {
-          src: secondImage.src,
-          alt: "Equipment",
-          width: 800,
-          height: 600
-        },
-        {
-          src: thirdImage.src,
-          alt: "Staff",
-          width: 1200,
-          height: 800
-        },
-        {
-          src: heroImage.src,
-          alt: "Lab Facilities",
-          width: 1200,
-          height: 800
-        },
-        {
-          src: heroImage.src,
-          alt: "Reception",
-          width: 1200,
-          height: 800
-        }
-      ],
-      overview: "Leading diagnostic center with state-of-the-art facilities...",
-      mapUrl: "https://www.google.com/maps/embed?pb=",
-      tests: [
-        {
-          name: "Complete Blood Count",
-          price: 400,
-          description: "Includes RBC, WBC, Platelets count"
-        },
-        {
-          name: "Lipid Profile",
-          price: 600,
-          description: "Cholesterol and triglycerides test"
-        }
-      ],
-      reviews: [
-        {
-          user: "John Doe",
-          rating: 5,
-          comment: "Excellent service and quick results. The staff was very professional and the lab is well maintained. Reports were delivered on time.",
-          date: "2024-01-15"
-        },
-        {
-          user: "Sarah Smith",
-          rating: 4,
-          comment: "Good experience overall. Clean facility and courteous staff. Reasonable pricing compared to other labs.",
-          date: "2024-01-10"
-        },
-        {
-          user: "Rahul Kumar",
-          rating: 5,
-          comment: "Very satisfied with the home collection service. The technician was punctual and professional.",
-          date: "2024-01-05"
-        },
-        {
-          user: "Priya Sharma",
-          rating: 4,
-          comment: "Convenient location and modern facilities. Reports are accurate and delivered on time.",
-          date: "2023-12-28"
-        }
-      ]
-    });
+    // Use mock data from imported file
+    setDetails(mockPathologyDetails);
   }, [resolvedParams.slug]);
 
   const nextImage = (e: React.MouseEvent) => {
@@ -428,14 +116,25 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
   };
 
   const handleAddToCart = (test: TestType, type: 'walk-in' | 'home-collection') => {
-    addToCart({
+    const wasAdded = addToCart({
       id: test.id,
       name: test.name,
       price: test.price,
       pathologyName: details?.name || '',
       type: type
     });
-    setShowToast(true);
+
+    if (wasAdded) {
+      setToastMessage({
+        message: "Test added to cart successfully!",
+        type: 'success'
+      });
+    } else {
+      setToastMessage({
+        message: "This test is already in your cart",
+        type: 'error'
+      });
+    }
   };
 
   const handleLoadMore = () => {
@@ -499,121 +198,11 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* SEO Schema */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(generateBreadcrumbSchema(details))
-        }}
+      <BreadcrumbSEO 
+        name={details.name}
+        location={details.location}
+        area={details.area}
       />
-
-      {/* Breadcrumb Navigation */}
-      <nav 
-        className="bg-white border-b sticky top-[64px] z-40 backdrop-blur-sm bg-white/90"
-        aria-label="Breadcrumb"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-5xl mx-auto">
-            <div className="flex items-center h-12">
-              <ol 
-                className="flex items-center text-sm"
-                itemScope
-                itemType="https://schema.org/BreadcrumbList"
-              >
-                <li 
-                  itemProp="itemListElement"
-                  itemScope
-                  itemType="https://schema.org/ListItem"
-                  className="flex items-center"
-                >
-                  <Link 
-                    href="/"
-                    className="text-blue-600 hover:text-blue-800"
-                    itemProp="item"
-                  >
-                    <span itemProp="name">Home</span>
-                  </Link>
-                  <meta itemProp="position" content="1" />
-                  <span className="mx-2 text-gray-500">/</span>
-                </li>
-
-                <li 
-                  itemProp="itemListElement"
-                  itemScope
-                  itemType="https://schema.org/ListItem"
-                  className="flex items-center"
-                >
-                  <Link 
-                    href="/pathology"
-                    className="text-blue-600 hover:text-blue-800"
-                    itemProp="item"
-                  >
-                    <span itemProp="name">Pathology Labs</span>
-                  </Link>
-                  <meta itemProp="position" content="2" />
-                  <span className="mx-2 text-gray-500">/</span>
-                </li>
-                <li 
-                  itemProp="itemListElement"
-                  itemScope
-                  itemType="https://schema.org/ListItem"
-                  className="flex items-center"
-                >
-                  <span 
-                    className="text-gray-600"
-                    itemProp="name"
-                  >
-                    {details.location}
-                  </span>
-                  <meta 
-                    itemProp="item" 
-                    content={`https://healthquicklab.com/pathology/${details.location.toLowerCase().replace(/\s+/g, '-')}`}
-                  />
-                  <meta itemProp="position" content="3" />
-                  <span className="mx-2 text-gray-500">/</span>
-                </li>
-                <li 
-                  itemProp="itemListElement"
-                  itemScope
-                  itemType="https://schema.org/ListItem"
-                  className="flex items-center"
-                >
-                  <span 
-                    className="text-gray-600"
-                    itemProp="name"
-                  >
-                    {details.area}
-                  </span>
-                  <meta 
-                    itemProp="item" 
-                    content={`https://healthquicklab.com/pathology/${details.location.toLowerCase().replace(/\s+/g, '-')}`}
-                  />
-                  <meta itemProp="position" content="4" />
-                  <span className="mx-2 text-gray-500">/</span>
-                </li>
-                <li 
-                  itemProp="itemListElement"
-                  itemScope
-                  itemType="https://schema.org/ListItem"
-                  className="flex items-center"
-                >
-                  <span 
-                    className="text-gray-600"
-                    itemProp="name"
-                  >
-                    {details.name}
-                  </span>
-                  <meta 
-                    itemProp="item" 
-                    content={`https://healthquicklab.com/pathology/${details.name.toLowerCase().replace(/\s+/g, '-')}`}
-                  />
-                  <meta itemProp="position" content="5" />
-                </li>
-              </ol> 
-            </div>
-          </div>
-        </div>
-      </nav>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mt-16">
@@ -634,9 +223,18 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                       <span>Open Now</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-gray-700 bg-gray-50 px-3 py-1.5 rounded-lg">
-                    <FaPhone className="text-blue-500" />
-                    <span className="font-medium">{details.phone}</span>
+                  <div className="relative group">
+                    <div className="flex items-center gap-1.5 bg-green-50 px-3 py-2 rounded-lg">
+                      <FaUserMd className="text-green-600" />
+                      <span className="text-green-700 font-small">Home Sample Collection</span>
+                    </div>
+                    {/* Tooltip */}
+                    <div className="absolute left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs py-2 px-3 rounded-lg shadow-lg whitespace-nowrap flex items-center gap-2">
+                      <FaCheckCircle className="text-green-400" />
+                      <span>Available within 5 km service area</span>
+                      {/* Arrow */}
+                      <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+                    </div>
                   </div>
                 </div>
 
@@ -660,6 +258,11 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                     <span className="mx-1.5 text-gray-500">|</span>
                     <FaCalendarAlt className="text-red-500" />
                     <span className="text-gray-700">{details.timings.days}</span>
+                  </div>
+                  <span className="mx-1.5 text-gray-500">|</span>
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <FaPhone className="text-blue-500" />
+                    <span className="font-medium">{details.phone}</span>
                   </div>
                 </div>
 
@@ -747,7 +350,7 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                     >
                       <div className="absolute inset-0 border-r border-t border-b border-gray-200 z-10" />
                       <Image
-                        src={details.images[2]?.src || heroImage.src}
+                        src={details.images[2]?.src || details.images[0].src}
                         alt={details.images[2]?.alt || "Lab Image"}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -766,7 +369,7 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                     >
                       <div className="absolute inset-0 border-r border-b border-gray-200 z-10" />
                       <Image
-                        src={details.images[3]?.src || heroImage.src}
+                        src={details.images[3]?.src || details.images[0].src}
                         alt={details.images[3]?.alt || "Lab Image"}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -780,7 +383,7 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                   <div className="relative cursor-pointer overflow-hidden group">
                     <div className="absolute inset-0 border-t border-b border-gray-200 z-10" />
                     <Image
-                      src={details.images[1]?.src || heroImage.src}
+                      src={details.images[1]?.src || details.images[0].src}
                       alt={details.images[1]?.alt || "Lab Image"}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -1153,10 +756,11 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
         </div>
       )}
 
-      {showToast && (
+      {toastMessage && (
         <Toast 
-          message="Test added to cart successfully!" 
-          onClose={() => setShowToast(false)} 
+          message={toastMessage.message}
+          type={toastMessage.type}
+          onClose={() => setToastMessage(null)} 
         />
       )}
 

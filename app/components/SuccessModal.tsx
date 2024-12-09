@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { FaCheckCircle } from 'react-icons/fa';
+import { FaCheckCircle, FaDownload } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 
 interface SuccessModalProps {
@@ -37,11 +37,25 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({ onClose }) => {
           
           {/* Success Message */}
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Payment Successful!
+            Booking Confirmed!
           </h2>
-          <p className="text-gray-600 mb-8">
-            Your booking has been confirmed. You will receive a confirmation email shortly.
+          <p className="text-gray-600 mb-6">
+            Your appointment has been scheduled successfully. You will receive a confirmation email shortly.
           </p>
+
+          {/* Booking Details */}
+          <div className="w-full bg-gray-50 rounded-lg p-4 mb-6">
+            <div className="text-left space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Booking ID</span>
+                <span className="font-medium">HQL-2024-0001</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Amount Paid</span>
+                <span className="font-medium">₹1,299</span>
+              </div>
+            </div>
+          </div>
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 w-full">
@@ -53,9 +67,10 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({ onClose }) => {
             </button>
             <button
               onClick={onClose}
-              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
             >
-              View Details
+              <FaDownload size={16} />
+              Download Receipt
             </button>
           </div>
         </div>

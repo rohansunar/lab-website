@@ -9,7 +9,7 @@ const CartIcon = () => {
   const itemCount = getItemCount();
 
   return (
-    <Link href="/cart" className="relative">
+    <Link href="/checkout" className="relative">
       <FaShoppingCart className="text-2xl text-white" />
       {itemCount > 0 && (
         <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">

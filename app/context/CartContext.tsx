@@ -25,7 +25,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
   const addToCart = (item: CartItem) => {
+    const exists = items.some(cartItem => 
+      cartItem.id === item.id && cartItem.type === item.type
+    );
+
+    if (exists) {
+      return false;
+    }
+
     setItems((prev) => [...prev, item]);
+    return true;
   };
 
   const removeFromCart = (itemId: string) => {

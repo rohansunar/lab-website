@@ -3,11 +3,13 @@
 import { useCart } from '@/app/context/CartContext';
 import { FaTrash, FaShoppingCart } from 'react-icons/fa';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export const CartNavbar = () => {
   const { items, removeFromCart, getCartTotal } = useCart();
+  const pathname = usePathname();
 
-  if (items.length === 0) return null;
+  if (items.length === 0 || pathname === '/checkout') return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg transform animate-slide-up z-[100]">
@@ -40,11 +42,11 @@ export const CartNavbar = () => {
               <p className="text-lg font-bold text-gray-900">₹{getCartTotal()}</p>
             </div>
             <Link
-              href="/cart"
+              href="/checkout"
               className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
             >
               <FaShoppingCart size={16} />
-              <span>Go to Cart</span>
+              <span>Proceed to Checkout</span>
             </Link>
           </div>
         </div>

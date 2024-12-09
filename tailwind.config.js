@@ -27,6 +27,10 @@ module.exports = {
           "0%": { transform: "scaleX(0)" },
           "100%": { transform: "scaleX(1)" },
         },
+        "slide-down": {
+          "0%": { transform: "translateY(-100%)", opacity: 0 },
+          "100%": { transform: "translateY(0)", opacity: 1 },
+        },
       },
       animation: {
         "fade-in": "fade-in 0.3s ease-out",
@@ -34,6 +38,7 @@ module.exports = {
         "bounce-small": "bounce-small 2s infinite",
         "slide-up": "slide-up 0.3s ease-out",
         "slide-in": "slide-in 0.3s ease-out",
+        "slide-down": "slide-down 0.3s ease-out",
       },
     },
   },
