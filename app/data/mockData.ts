@@ -188,6 +188,30 @@ export const homeCollectionTests = [
   },
 ];
 
+export const healthPackages = [
+  {
+    id: "hp1",
+    name: "Basic Health Checkup",
+    price: 999,
+    description: "Complete blood count, liver function, kidney function",
+    reportTime: "24 hours",
+    preparation: "Fasting required",
+    discount: 10,
+    originalPrice: 1299,
+  },
+  {
+    id: "hp2",
+    name: "Comprehensive Health Package",
+    price: 2499,
+    description: "Full body checkup with 50+ tests",
+    reportTime: "48 hours",
+    preparation: "Fasting required",
+    discount: 15,
+    originalPrice: 2999,
+  },
+  // Add more packages as needed
+];
+
 export const mockPathologyDetails = {
   name: "PathCare Labs",
   categories: ["Blood Tests", "Pathology", "Health Checkup"],

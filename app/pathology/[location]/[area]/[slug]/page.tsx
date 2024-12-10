@@ -1,11 +1,5 @@
 'use client';
 
-interface PathologyParams {
-  location: string;
-  area: string;
-  slug: string;
-}
-
 import { useEffect, useState, use } from 'react';
 import Image from 'next/image';
 import { 
@@ -13,11 +7,19 @@ import {
   FaDirections, FaShare, FaComment, FaChevronRight, 
   FaChevronLeft, FaInfoCircle, 
   FaShoppingCart, FaCalendarAlt, FaUserMd,
-  FaCheckCircle, FaHospital, FaStethoscope} from 'react-icons/fa';
-import { mockPathologyDetails, walkInTests, homeCollectionTests } from '@/app/data/mockData';
+  FaCheckCircle, FaHospital, FaStethoscope, FaXRay } from 'react-icons/fa';
+import { mockPathologyDetails, walkInTests, homeCollectionTests, healthPackages } from '@/app/data/mockData';
 import { Toast } from '@/app/components/Toast';
 import { useCart } from '@/app/context/CartContext';
 import BreadcrumbSEO from '@/app/components/BreadcrumbSEO';
+import { TestCard } from '@/app/components/TestCard';
+import { IconType } from 'react-icons';
+
+interface PathologyParams {
+  location: string;
+  area: string;
+  slug: string;
+}
 
 interface GalleryImage {
   src: string;
@@ -56,16 +58,15 @@ interface PathologyDetails {
   }>;
 }
 
-type TabType = 'overview' | 'walk-in' | 'home-collection' | 'reviews';
+type TabType = 'overview' | 'appointment' | 'reviews';
 
-interface TestType {
+interface TestCategory {
   id: string;
   name: string;
-  price: number;
+  icon: IconType;
   description: string;
-  preparation: string;
-  reportTime: string;
-  discount?: number;
+  count: number;
+  disabled?: boolean;
 }
 
 export default function PathologyDetails({ params }: { params: Promise<PathologyParams> }) {
@@ -76,7 +77,7 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
   const { addToCart } = useCart();
   const resolvedParams = use(params);
   const [showToast, setShowToast] = useState(false);
-  const [visibleReviews, setVisibleReviews] = useState(4); // Initial number of reviews to show
+  const [visibleReviews, setVisibleReviews] = useState(4);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewForm, setReviewForm] = useState({
@@ -95,9 +96,33 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
     message: string;
     type: 'success' | 'error';
   } | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState('walk-in');
+
+  const testCategories = [
+    { 
+      id: 'walk-in', 
+      name: 'Walk-In', 
+      icon: FaHospital,
+      description: 'Visit lab for sample collection',
+      count: walkInTests?.length || 0
+    },
+    { 
+      id: 'home', 
+      name: 'Home Collection', 
+      icon: FaUserMd,
+      description: 'Get samples collected at home',
+      count: homeCollectionTests?.length || 0
+    },
+    { 
+      id: 'packages', 
+      name: 'Health Packages', 
+      icon: FaStethoscope,
+      description: 'Comprehensive health checkups',
+      count: healthPackages?.length || 0
+    },
+  ];
 
   useEffect(() => {
-    // Use mock data from imported file
     setDetails(mockPathologyDetails);
   }, [resolvedParams.slug]);
 
@@ -115,7 +140,7 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
     }
   };
 
-  const handleAddToCart = (test: TestType, type: 'walk-in' | 'home-collection') => {
+  const handleAddToCart = (test: TestType, type: 'walk-in' | 'home-collection' | 'package') => {
     const wasAdded = addToCart({
       id: test.id,
       name: test.name,
@@ -139,9 +164,8 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
 
   const handleLoadMore = () => {
     setIsLoadingMore(true);
-    // Simulate API delay
     setTimeout(() => {
-      setVisibleReviews(prev => prev + 4); // Load 4 more reviews
+      setVisibleReviews(prev => prev + 4);
       setIsLoadingMore(false);
     }, 500);
   };
@@ -150,7 +174,6 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
     e.preventDefault();
     setFormErrors(undefined);
     
-    // Validate form
     const errors: typeof formErrors = {};
     if (!reviewForm.name.trim()) {
       errors.name = 'Name is required';
@@ -170,11 +193,9 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
     }
 
     setIsSubmitting(true);
-    // Simulate API call
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitStatus('success');
-      // Reset form after success
       setTimeout(() => {
         setShowReviewForm(false);
         setReviewForm({ name: '', rating: 0, comment: '' });
@@ -183,16 +204,21 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
     }, 1000);
   };
 
-  
   const scrollToReviews = () => {
     setActiveTab('reviews');
-    // Find the tabs container and scroll to it
     const tabsContainer = document.querySelector('.tabs-container');
     if (tabsContainer) {
       tabsContainer.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
+  const scrollToBooking = () => {
+    setActiveTab('appointment');
+    const tabsContainer = document.querySelector('.tabs-container');
+    if (tabsContainer) {
+      tabsContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   if (!details) return <div>Loading...</div>;
 
@@ -204,15 +230,11 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
         area={details.area}
       />
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mt-16">
         <div className="max-w-5xl mx-auto">
-          {/* Combined Basic Info, Image Gallery, and Tabs Section */}
           <div className="bg-white rounded-2xl shadow-sm mb-8">
-            {/* Basic Info */}
             <div className="p-4 border-b">
               <div className="flex-grow space-y-2">
-                {/* Name and Phone Section */}
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <h1 className="text-3xl font-bold text-gray-900">
@@ -228,17 +250,14 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                       <FaUserMd className="text-green-600" />
                       <span className="text-green-700 font-small">Home Sample Collection</span>
                     </div>
-                    {/* Tooltip */}
                     <div className="absolute left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs py-2 px-3 rounded-lg shadow-lg whitespace-nowrap flex items-center gap-2">
                       <FaCheckCircle className="text-green-400" />
                       <span>Available within 5 km service area</span>
-                      {/* Arrow */}
                       <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                     </div>
                   </div>
                 </div>
 
-                {/* Categories and Address */}
                 <div className="flex items-center text-gray-600 gap-2">
                   <div className="flex items-center gap-1.5">
                     <FaHospital className="text-blue-500" />
@@ -250,7 +269,6 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                   </div>
                 </div>
 
-                {/* Opening Hours Info */}
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-2 bg-gray-50 border border-red-200 px-3 py-1.5 rounded-full text-sm font-medium">
                     <FaClock className="text-red-500" />
@@ -266,7 +284,6 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                   </div>
                 </div>
 
-                {/* Enhanced badges */}
                 <div className="flex flex-wrap gap-2 mb-3">
                   <div className="flex items-center bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors">
                     <FaStar className="mr-2 text-yellow-500" />
@@ -286,11 +303,12 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                   </div>
                 </div>
 
-                {/* Action Buttons */}
                 <div className="flex flex-wrap gap-2">
-                  <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all group">
-                    <FaShoppingCart className="group-hover:scale-110 transition-transform" />
-                    <span>Book Online</span>
+                  <button 
+                  onClick={() => scrollToBooking()}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all group">
+                    <FaShoppingCart className="group-hover:scale-110 transition-transform animate-pulse" />
+                    <span>Book An Appointment</span>
                   </button>
 
                   <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all group">
@@ -314,10 +332,8 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
               </div>
             </div>
 
-            {/* Image Gallery */}
             <div className="p-0.5 border-b">
               <div className="flex">
-                {/* Hero Image */}
                 <div 
                   className="w-2/3 relative aspect-[16/9] cursor-pointer overflow-hidden group h-[300px]"
                   onClick={() => {
@@ -336,11 +352,8 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
 
-                {/* Side Images Column */}
                 <div className="w-1/3 grid grid-cols-2 h-[300px]">
-                  {/* Second and Third Images Column */}
                   <div className="flex flex-col">
-                    {/* Second Image */}
                     <div 
                       className="relative h-1/2 cursor-pointer overflow-hidden group"
                       onClick={() => {
@@ -359,7 +372,6 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </div>
 
-                    {/* Third Image */}
                     <div 
                       className="relative h-1/2 cursor-pointer overflow-hidden group"
                       onClick={() => {
@@ -379,7 +391,6 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                     </div>
                   </div>
 
-                  {/* Fourth Side Image */}
                   <div className="relative cursor-pointer overflow-hidden group">
                     <div className="absolute inset-0 border-t border-b border-gray-200 z-10" />
                     <Image
@@ -389,7 +400,6 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                       sizes="(max-width: 1280px) 33vw, 400px"
                     />
-                    {/* Gallery Overlay */}
                     {details.images.length > 3 && (
                       <div 
                         className="absolute inset-0 bg-black/40 hover:bg-black/50 transition-all duration-300 flex flex-col items-center justify-center cursor-pointer backdrop-blur-[2px] z-20"
@@ -412,10 +422,9 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
               </div>
             </div>
 
-            {/* Tabs Section */}
             <div className="tabs-container">
               <div className="flex border-b overflow-x-auto hide-scrollbar">
-                {(['overview', 'walk-in', 'home-collection', 'reviews'] as TabType[]).map((tab) => (
+                {(['overview', 'appointment', 'reviews'] as TabType[]).map((tab) => (
                   <button
                     key={tab}
                     className={`px-8 py-4 text-base font-semibold whitespace-nowrap transition-colors relative 
@@ -428,11 +437,10 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                   >
                     <div className="flex items-center gap-2">
                       {tab === 'overview' && <FaInfoCircle size={18} />}
-                      {tab === 'walk-in' && <FaStethoscope size={18} />}
-                      {tab === 'home-collection' && <FaHospital size={18} />}
+                      {tab === 'appointment' && <FaStethoscope size={18} />}
                       {tab === 'reviews' && <FaComment size={18} />}
                       <span className="tracking-wide">
-                        {tab === 'walk-in' ? 'Walk-in Tests' : 
+                        {tab === 'walk-in' ? 'Walk-In' : 
                          tab === 'home-collection' ? 'Home Collection' :
                          tab.charAt(0).toUpperCase() + tab.slice(1)}
                       </span>
@@ -451,116 +459,199 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                   </div>
                 )}
 
-                {activeTab === 'walk-in' && (
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Available Walk-in Tests</h3>
-                      <div className="text-sm text-gray-600">
-                        Visit Time: 9:00 AM - 6:00 PM
-                      </div>
-                    </div>
-                    
-                    <div className="grid gap-4">
-                      {walkInTests.map((test) => (
-                        <div 
-                          key={test.id}
-                          className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
-                        >
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h4 className="font-medium text-lg">{test.name}</h4>
-                              <p className="text-gray-600 text-sm mt-1">{test.description}</p>
-                              <div className="mt-2 space-y-1 text-sm">
-                                <p className="text-gray-600">Preparation: {test.preparation}</p>
-                                <p className="text-gray-600">Report: {test.reportTime}</p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-lg font-bold">₹{test.price}</div>
-                              {test.discount && (
-                                <div className="text-green-600 text-sm">
-                                  {test.discount}% OFF
-                                </div>
-                              )}
-                              <button 
-                                onClick={() => handleAddToCart(test, 'walk-in')}
-                                className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center justify-center gap-2"
-                              >
-                                <FaShoppingCart size={16} />
-                                Add to Cart
-                              </button>
-                            </div>
-                          </div>
+                {activeTab === 'appointment' && (
+                  <div className="grid grid-cols-12 gap-8">
+                    <div className="col-span-3">
+                      <div className="sticky top-24 bg-white rounded-lg shadow-sm border border-gray-100">
+                        <div className="p-4 border-b border-gray-100">
+                          <h3 className="font-semibold text-gray-900">Categories</h3>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'home-collection' && (
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Home Collection Tests</h3>
-                      <div className="text-sm text-gray-600">
-                        Collection Time: 6:00 AM - 4:00 PM
+                        <div className="p-2">
+                          {testCategories.map((category) => (
+                            <button
+                              key={category.id}
+                              onClick={() => !category.disabled && setSelectedCategory(category.id)}
+                              disabled={category.disabled}
+                              className={`w-full flex items-center gap-3 p-4 rounded-lg transition-all ${
+                                category.disabled 
+                                  ? 'opacity-50 cursor-not-allowed'
+                                  : selectedCategory === category.id
+                                    ? 'bg-blue-50 text-blue-600'
+                                    : 'text-gray-600 hover:bg-gray-50'
+                              }`}
+                            >
+                              <div className={`p-2 rounded-lg ${
+                                selectedCategory === category.id 
+                                  ? 'bg-blue-100' 
+                                  : 'bg-gray-100'
+                              }`}>
+                                <category.icon size={20} />
+                              </div>
+                              <div className="flex-1 text-left">
+                                <div className="flex items-center justify-between">
+                                  <p className="font-medium">{category.name}</p>
+                                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                    selectedCategory === category.id
+                                      ? 'bg-blue-100 text-blue-700'
+                                      : 'bg-gray-100 text-gray-600'
+                                  }`}>
+                                    {category.count}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-500">{category.description}</p>
+                                {category.disabled && (
+                                  <span className="text-xs text-orange-600 mt-1 block">
+                                    Coming Soon
+                                  </span>
+                                )}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
 
-                    <div className="bg-blue-50 rounded-lg p-4 mb-6">
-                      <div className="flex items-start">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                          <FaInfoCircle className="text-blue-600" />
-                        </div>
-                        <div className="ml-4">
-                          <h4 className="font-medium">Home Collection Service</h4>
-                          <p className="text-sm text-gray-600 mt-1">
-                            Our trained phlebotomists will visit your home for sample collection.
-                            Please keep your prescription ready if available.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="grid gap-4">
-                      {homeCollectionTests.map((test) => (
-                        <div 
-                          key={test.id}
-                          className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow"
-                        >
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h4 className="font-medium text-lg">{test.name}</h4>
-                              <p className="text-gray-600 text-sm mt-1">{test.description}</p>
-                              <div className="mt-2 space-y-1 text-sm">
-                                <p className="text-gray-600">Preparation: {test.preparation}</p>
-                                <p className="text-gray-600">Report: {test.reportTime}</p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-lg font-bold">₹{test.price}</div>
-                              {test.discount && (
-                                <div className="text-green-600 text-sm">
-                                  {test.discount}% OFF
-                                </div>
-                              )}
-                              <button 
-                                onClick={() => handleAddToCart(test, 'home-collection')}
-                                className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center justify-center gap-2"
-                              >
-                                <FaShoppingCart size={16} />
-                                Add to Cart
-                              </button>
-                            </div>
+                    <div className="col-span-9">
+                      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+                        <div className="p-4 border-b border-gray-100">
+                          <div className="flex justify-between items-center">
+                            <h3 className="font-semibold text-gray-900">Available Tests</h3>
+                            <span className="text-sm text-gray-500">
+                              {selectedCategory === 'walk-in' ? walkInTests?.length :
+                               selectedCategory === 'home' ? homeCollectionTests?.length :
+                               selectedCategory === 'packages' ? healthPackages?.length : 0} Tests
+                            </span>
                           </div>
                         </div>
-                      ))}
+
+                        <div className="max-h-[calc(100vh-300px)] overflow-y-auto">
+                          <div className="divide-y divide-gray-100">
+                            {selectedCategory === 'walk-in' && walkInTests.map((test) => (
+                              <div 
+                                key={test.id}
+                                className="p-4 hover:bg-gray-50 transition-colors flex items-center justify-between gap-4 group"
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-medium text-gray-900">{test.name}</h3>
+                                  <div className="mt-1 flex items-center gap-3 text-sm">
+                                    <span className="text-gray-500">{test.description}</span>
+                                    <span className="text-gray-300">•</span>
+                                    <span className="text-gray-500">Report: {test.reportTime}</span>
+                                    {test.preparation && (
+                                      <>
+                                        <span className="text-gray-300">•</span>
+                                        <span className="text-gray-500">{test.preparation}</span>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-4">
+                                  <div className="text-right">
+                                    <div className="text-lg font-semibold text-gray-900">₹{test.price}</div>
+                                    {test.discount > 0 && (
+                                      <div className="text-sm text-gray-500 line-through">
+                                        ₹{Math.round(test.price * (1 + test.discount/100))}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <button
+                                    onClick={() => handleAddToCart(test, 'walk-in')}
+                                    className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 opacity-1 group-hover:opacity-100"
+                                  >
+                                    <FaShoppingCart size={14} />
+                                    <span>Add</span>
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+
+                            {selectedCategory === 'home' && homeCollectionTests.map((test) => (
+                              <div 
+                                key={test.id}
+                                className="p-4 hover:bg-gray-50 transition-colors flex items-center justify-between gap-4 group"
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-medium text-gray-900">{test.name}</h3>
+                                  <div className="mt-1 flex items-center gap-3 text-sm">
+                                    <span className="text-gray-500">{test.description}</span>
+                                    <span className="text-gray-300">•</span>
+                                    <span className="text-gray-500">Report: {test.reportTime}</span>
+                                    {test.preparation && (
+                                      <>
+                                        <span className="text-gray-300">•</span>
+                                        <span className="text-gray-500">{test.preparation}</span>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-4">
+                                  <div className="text-right">
+                                    <div className="text-lg font-semibold text-gray-900">₹{test.price}</div>
+                                    {test.discount > 0 && (
+                                      <div className="text-sm text-gray-500 line-through">
+                                        ₹{Math.round(test.price * (1 + test.discount/100))}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <button
+                                    onClick={() => handleAddToCart(test, 'home-collection')}
+                                    className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 opacity-1 group-hover:opacity-100"
+                                  >
+                                    <FaShoppingCart size={14} />
+                                    <span>Add</span>
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+
+                            {selectedCategory === 'packages' && healthPackages.map((test) => (
+                              <div 
+                                key={test.id}
+                                className="p-4 hover:bg-gray-50 transition-colors flex items-center justify-between gap-4 group"
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-medium text-gray-900">{test.name}</h3>
+                                  <div className="mt-1 flex items-center gap-3 text-sm">
+                                    <span className="text-gray-500">{test.description}</span>
+                                    <span className="text-gray-300">•</span>
+                                    <span className="text-gray-500">Report: {test.reportTime}</span>
+                                    {test.preparation && (
+                                      <>
+                                        <span className="text-gray-300">•</span>
+                                        <span className="text-gray-500">{test.preparation}</span>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center gap-4">
+                                  <div className="text-right">
+                                    <div className="text-lg font-semibold text-gray-900">₹{test.price}</div>
+                                    {test.discount > 0 && test.originalPrice && (
+                                      <div className="text-sm text-gray-500 line-through">₹{test.originalPrice}</div>
+                                    )}
+                                  </div>
+                                  <button
+                                    onClick={() => handleAddToCart(test, 'package')}
+                                    className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 opacity-1 group-hover:opacity-100"
+                                  >
+                                    <FaShoppingCart size={14} />
+                                    <span>Add</span>
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {activeTab === 'reviews' && (
                   <div className="space-y-6">
-                    {/* Reviews Header */}
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="text-xl font-semibold">Customer Reviews</h3>
@@ -585,11 +676,9 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                       </button>
                     </div>
 
-                    {/* Reviews List */}
                     <div className="grid grid-cols-2 gap-4">
                       {details.reviews.slice(0, visibleReviews).map((review, index) => (
                         <div key={index} className="bg-gray-50 rounded-lg p-4 space-y-2">
-                          {/* Review Header */}
                           <div className="flex justify-between items-start">
                             <div>
                               <h4 className="font-medium text-base">{review.user}</h4>
@@ -613,31 +702,15 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                                 </span>
                               </div>
                             </div>
-                            {/* <button className="p-1.5 text-gray-400 hover:text-blue-600 rounded-full hover:bg-blue-50 transition-colors">
-                              <FaShare size={12} />
-                            </button> */}
                           </div>
 
-                          {/* Review Content */}
                           <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
                             {review.comment}
                           </p>
-
-                          {/* Review Actions */}
-                          {/* <div className="flex items-center gap-3 pt-1">
-                            <button className="flex items-center gap-1 text-gray-500 hover:text-blue-600 text-xs">
-                              <FaThumbsUp size={12} />
-                              <span>Helpful</span>
-                            </button>
-                            <button className="text-gray-500 hover:text-blue-600 text-xs">
-                              Report
-                            </button>
-                          </div> */}
                         </div>
                       ))}
                     </div>
 
-                    {/* Load More Button - Updated */}
                     {visibleReviews < details.reviews.length && (
                       <div className="text-center pt-3">
                         <button 
@@ -666,13 +739,10 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                     )}
                   </div>
                 )}
-
-                {/* Add other tab contents */}
               </div>
             </div>
           </div>
 
-          {/* Map Section - Moved to bottom */}
           <div className="mt-8">
             <div className="bg-white rounded-xl shadow-sm">
               <div className="max-w-5xl mx-auto">
@@ -701,14 +771,12 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
         </div>
       </div>
 
-      {/* Image Zoom Modal */}
       {selectedImage && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center"
           onClick={() => setSelectedImage(null)}
         >
           <div className="relative w-full h-full flex items-center justify-center">
-            {/* Previous Button */}
             <button
               onClick={prevImage}
               className="absolute left-4 z-10 text-white hover:text-gray-300 p-2"
@@ -717,7 +785,6 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
               <FaChevronLeft size={24} />
             </button>
 
-            {/* Image */}
             <div className="relative w-full h-full p-4 flex items-center justify-center">
               <Image
                 src={details.images[currentImageIndex].src}
@@ -728,7 +795,6 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
               />
             </div>
 
-            {/* Next Button */}
             <button
               onClick={nextImage}
               className="absolute right-4 z-10 text-white hover:text-gray-300 p-2"
@@ -737,7 +803,6 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
               <FaChevronRight size={24} />
             </button>
 
-            {/* Close Button */}
             <button 
               onClick={(e) => {
                 e.stopPropagation();
@@ -748,7 +813,6 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
               <span className="text-3xl">×</span>
             </button>
 
-            {/* Image Counter */}
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white">
               {currentImageIndex + 1} / {details.images.length}
             </div>
@@ -782,26 +846,6 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
               </div>
 
               <form onSubmit={handleReviewSubmit} className="space-y-6">
-                {/* Name Input */}
-                {/* <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Your Name
-                  </label>
-                  <input
-                    type="text"
-                    value={reviewForm.name}
-                    onChange={(e) => setReviewForm(prev => ({ ...prev, name: e.target.value }))}
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all ${
-                      formErrors?.name ? 'border-red-300' : 'border-gray-300'
-                    }`}
-                    placeholder="Enter your name"
-                  />
-                  {formErrors?.name && (
-                    <p className="mt-1 text-sm text-red-500">{formErrors.name}</p>
-                  )}
-                </div> */}
-
-                {/* Rating Selection */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Rating
@@ -825,7 +869,6 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                   )}
                 </div>
 
-                {/* Review Comment */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Your Review
@@ -844,7 +887,6 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                   )}
                 </div>
 
-                {/* Submit Button */}
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -866,7 +908,6 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                 </button>
               </form>
 
-              {/* Status Messages */}
               {submitStatus && (
                 <div 
                   className={`mt-4 p-4 rounded-lg text-center font-medium ${
@@ -886,4 +927,17 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
       )}
     </div>
   );
-} 
+}
+
+const TabButton = ({ children, active, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`py-4 px-1 relative ${
+      active
+        ? 'text-blue-600 border-b-2 border-blue-600'
+        : 'text-gray-500 hover:text-gray-700'
+    }`}
+  >
+    {children}
+  </button>
+); 
