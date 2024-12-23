@@ -1,14 +1,10 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import Navbar from "./components/Navbar";
+import Navbar from "./components/layout/Navbar";
 import { CartNavbar } from './components/CartNavbar';
-import Footer from './components/Footer';
+import Footer from './components/layout/Footer';
 import { Providers } from './providers/Providers';
-// import '@fortawesome/fontawesome-svg-core/styles.css'; // Import FontAwesome styles
-// import { config } from '@fortawesome/fontawesome-svg-core';
-// config.autoAddCss = false; // Prevent FontAwesome from automatically adding CSS
-
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",

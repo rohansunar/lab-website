@@ -9,7 +9,7 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="fixed w-full bg-gradient-to-r from-sky-300 to to-sky-400 transition-all duration-200 z-50">
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div className="container mx-auto px-12 py-3 flex justify-between items-center">
         {/* Company Name */}
         <div className="text-xl font-bold">
           <Link href="/" className="text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-cyan-400 to-cyan-600">
@@ -60,22 +60,16 @@ const Navbar: React.FC = () => {
             Home
           </Link>
           <Link
-            href="/about"
-            className="block py-2 px-4 text-xl font-semibold text-gray-700 md:text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-blue-400 to-blue-600 transition-colors duration-300"
-          >
-            About
-          </Link>
-          <Link
-            href="/services"
-            className="block py-2 px-4 text-xl font-semibold text-gray-700 md:text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-blue-400 to-blue-600 transition-colors duration-300"
-          >
-            Services
-          </Link>
-          <Link
             href="/contact"
             className="block py-2 px-4 text-xl font-semibold text-gray-700 md:text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-blue-400 to-blue-600 transition-colors duration-300"
           >
             Contact
+          </Link>
+          <Link
+            href="/partner-with-us"
+            className="block py-2 px-4 text-xl font-semibold text-gray-700 md:text-white hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-r from-blue-400 to-blue-600 transition-colors duration-300"
+          >
+            Partner with Us
           </Link>
         </div>
 

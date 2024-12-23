@@ -7,67 +7,15 @@ import {
   FaDirections, FaShare, FaComment, FaChevronRight, 
   FaChevronLeft, FaInfoCircle, 
   FaShoppingCart, FaCalendarAlt, FaUserMd,
-  FaCheckCircle, FaHospital, FaStethoscope, FaXRay } from 'react-icons/fa';
+  FaCheckCircle, FaHospital, FaStethoscope } from 'react-icons/fa';
 import { mockPathologyDetails, walkInTests, homeCollectionTests, healthPackages } from '@/app/data/mockData';
 import { Toast } from '@/app/components/Toast';
 import { useCart } from '@/app/context/CartContext';
 import BreadcrumbSEO from '@/app/components/BreadcrumbSEO';
-import { TestCard } from '@/app/components/TestCard';
-import { IconType } from 'react-icons';
+import type { PathologyDetails, GalleryImage, PathologyParams } from '@/app/types';
 
-interface PathologyParams {
-  location: string;
-  area: string;
-  slug: string;
-}
-
-interface GalleryImage {
-  src: string;
-  alt: string;
-  width: number;
-  height: number;
-}
-
-interface PathologyDetails {
-  name: string;
-  categories: string[];
-  location: string;
-  area: string;
-  rating: number;
-  startingPrice: number;
-  address: string;
-  phone: string;
-  timings: {
-    open: string;
-    close: string;
-    days: string;
-  };
-  images: GalleryImage[];
-  overview: string;
-  mapUrl: string;
-  tests: Array<{
-    name: string;
-    price: number;
-    description?: string;
-  }>;
-  reviews: Array<{
-    user: string;
-    rating: number;
-    comment: string;
-    date: string;
-  }>;
-}
 
 type TabType = 'overview' | 'appointment' | 'reviews';
-
-interface TestCategory {
-  id: string;
-  name: string;
-  icon: IconType;
-  description: string;
-  count: number;
-  disabled?: boolean;
-}
 
 export default function PathologyDetails({ params }: { params: Promise<PathologyParams> }) {
   const [details, setDetails] = useState<PathologyDetails | null>(null);
@@ -76,7 +24,6 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { addToCart } = useCart();
   const resolvedParams = use(params);
-  const [showToast, setShowToast] = useState(false);
   const [visibleReviews, setVisibleReviews] = useState(4);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -90,6 +37,7 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
     rating?: string;
     comment?: string;
   }>();
+  const selectedPathologyId = localStorage.getItem('selectedPathologyId');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null);
   const [toastMessage, setToastMessage] = useState<{
@@ -122,9 +70,27 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
     },
   ];
 
+  // useEffect(() => {
+  //   setDetails(mockPathologyDetails);
+  // }, [resolvedParams.slug]);
+
+  
   useEffect(() => {
-    setDetails(mockPathologyDetails);
-  }, [resolvedParams.slug]);
+    (async () => {
+    if (selectedPathologyId) {
+      try {
+        const response = await fetch(`http://localhost:4000/labs/${selectedPathologyId}`, { method: 'GET' });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setDetails(data);
+      } catch (error) {
+        console.error('Failed to fetch pathology details:', error);
+      }
+    }
+  })();
+  }, [selectedPathologyId]);
 
   const nextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -220,14 +186,16 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
     }
   };
 
-  if (!details) return <div>Loading...</div>;
+ 
 
+  if (!details) return <div>Loading...</div>;
+  // const {city,state,country,pincode} = details.address
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <BreadcrumbSEO 
         name={details.name}
-        location={details.location}
-        area={details.area}
+        location={resolvedParams.location}
+        area={resolvedParams.area}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mt-16">
@@ -265,17 +233,19 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                   </div>
                   <div className="flex items-center gap-1.5">
                     <FaMapMarkerAlt className="text-blue-500" />
-                    <span>{details.address}</span>
+                    <span>
+                    {details.address.street}, {details.address.city}, {details.address.state}, {details.address.country}, {details.address.pincode}
+                    </span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-2 bg-gray-50 border border-red-200 px-3 py-1.5 rounded-full text-sm font-medium">
                     <FaClock className="text-red-500" />
-                    <span className="text-gray-700">{details.timings.open} - {details.timings.close}</span>
+                    <span className="text-gray-700">{details.openingTime} - {details.closingTime}</span>
                     <span className="mx-1.5 text-gray-500">|</span>
                     <FaCalendarAlt className="text-red-500" />
-                    <span className="text-gray-700">{details.timings.days}</span>
+                    <span className="text-gray-700">{details.workingDays}</span>
                   </div>
                   <span className="mx-1.5 text-gray-500">|</span>
                   <div className="flex items-center gap-2 text-gray-700">
@@ -342,8 +312,8 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                   }}
                 >
                   <Image
-                    src={details.images[0].src}
-                    alt={details.images[0].alt}
+                    src={mockPathologyDetails.images[0].src}
+                    alt={mockPathologyDetails.images[0].alt}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                     sizes="(max-width: 1280px) 66vw, 800px"
@@ -358,13 +328,13 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                       className="relative h-1/2 cursor-pointer overflow-hidden group"
                       onClick={() => {
                         setCurrentImageIndex(2);
-                        setSelectedImage(details.images[2]);
+                        setSelectedImage(mockPathologyDetails.images[2]);
                       }}
                     >
                       <div className="absolute inset-0 border-r border-t border-b border-gray-200 z-10" />
                       <Image
-                        src={details.images[2]?.src || details.images[0].src}
-                        alt={details.images[2]?.alt || "Lab Image"}
+                        src={mockPathologyDetails.images[2]?.src || mockPathologyDetails.images[0].src}
+                        alt={mockPathologyDetails.images[2]?.alt || "Lab Image"}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                         sizes="(max-width: 1280px) 33vw, 400px"
@@ -376,13 +346,13 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                       className="relative h-1/2 cursor-pointer overflow-hidden group"
                       onClick={() => {
                         setCurrentImageIndex(3);
-                        setSelectedImage(details.images[3]);
+                        setSelectedImage(mockPathologyDetails.images[3]);
                       }}
                     >
                       <div className="absolute inset-0 border-r border-b border-gray-200 z-10" />
                       <Image
-                        src={details.images[3]?.src || details.images[0].src}
-                        alt={details.images[3]?.alt || "Lab Image"}
+                        src={mockPathologyDetails.images[3]?.src || mockPathologyDetails.images[0].src}
+                        alt={mockPathologyDetails.images[3]?.alt || "Lab Image"}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                         sizes="(max-width: 1280px) 33vw, 400px"
@@ -394,24 +364,24 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                   <div className="relative cursor-pointer overflow-hidden group">
                     <div className="absolute inset-0 border-t border-b border-gray-200 z-10" />
                     <Image
-                      src={details.images[1]?.src || details.images[0].src}
-                      alt={details.images[1]?.alt || "Lab Image"}
+                      src={mockPathologyDetails.images[1]?.src || mockPathologyDetails.images[0].src}
+                      alt={mockPathologyDetails.images[1]?.alt || "Lab Image"}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                       sizes="(max-width: 1280px) 33vw, 400px"
                     />
-                    {details.images.length > 3 && (
+                    {mockPathologyDetails.images.length > 3 && (
                       <div 
                         className="absolute inset-0 bg-black/40 hover:bg-black/50 transition-all duration-300 flex flex-col items-center justify-center cursor-pointer backdrop-blur-[2px] z-20"
                         onClick={() => {
                           setCurrentImageIndex(4);
-                          setSelectedImage(details.images[4]);
+                          setSelectedImage(mockPathologyDetails.images[4]);
                         }}
                       >
                         <div className="transform group-hover:scale-110 transition-transform duration-300">
                           <div className="text-white text-lg font-semibold mb-1">View Gallery</div>
                           <div className="text-gray-200 text-sm text-center">
-                            +{details.images.length - 3} Photos
+                            +{mockPathologyDetails.images.length - 3} Photos
                           </div>
                         </div>
                       </div>
@@ -762,7 +732,7 @@ export default function PathologyDetails({ params }: { params: Promise<Pathology
                   </div>
                   <div className="mt-4 flex items-start gap-3 text-gray-600">
                     <FaMapMarkerAlt className="text-blue-500 mt-1" />
-                    <p>{details.address}</p>
+                    <p>{details.address.street}, {details.address.city}, {details.address.state}, {details.address.country}, {details.address.pincode}</p>
                   </div>
                 </div>
               </div>

@@ -1,11 +1,19 @@
 export interface Pathology {
+  _id: string;
   name: string;
   categories?: string[];
-  location: string;
-  area: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    country: string;
+    pincode: string;
+  };
   rating: number;
   distance: string;
-  priceForTwo: string;
+  startingPrice: string;
   discount?: string;
-  imageUrl?: string;
+  images?: string[];
 }
+
+export * from "./PathologyDetails";

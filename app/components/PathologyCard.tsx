@@ -5,37 +5,46 @@ import { FaStar } from 'react-icons/fa';
 import Image from 'next/image';
 
 interface PathologyCardProps {
+  _id: string;
   name: string;
   categories?: string[];
-  location: string;
-  area: string;
+  address: {
+    street: string
+    city:string,
+    state:string
+    country: string
+    pincode: string
+  };
   rating: number;
   distance: string;
-  priceForTwo: string;
+  startingPrice: string;
   discount?: string;
-  imageUrl?: string;
+  images?: string[];
 }
 
 const PathologyCard: React.FC<PathologyCardProps> = ({
+  _id,
   name,
   categories = [],
-  location,
-  area ,
+  address,
   rating,
   distance,
-  priceForTwo,
+  startingPrice,
   discount,
-  imageUrl = '/default-lab.jpg'
+  images
 }) => {
-  const href = `/pathology/${location.toLowerCase()}/${area.toLowerCase()}/${name.toLowerCase().replace(/\s+/g, '-')}`;
-  
+
+  const handleClick = () => {
+    localStorage.setItem('selectedPathologyId', _id);
+  };
+
   return (
-    <Link href={href} className="block">
+    <Link href={`/pathology/${address.city.toLowerCase()}/Khaprail/${name.toLowerCase().replace(/\s+/g, '-')}`} onClick={handleClick} className="block">
       <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
         {/* Image Container */}
         <div className="relative h-48 w-full rounded-t-lg">
           <Image
-            src={imageUrl || '/default-lab.jpg'}
+            src={images && images.length > 0 ? images[0] : '/default-lab.jpg'}
             alt={name}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -70,14 +79,14 @@ const PathologyCard: React.FC<PathologyCardProps> = ({
 
           {/* Location */}
           <div className="text-gray-500 text-sm mb-2">
-            {location}
+            {address.city}
           </div>
 
           {/* Footer */}
           <div className="flex items-center justify-between text-sm text-gray-500">
             <span>{distance}</span>
             <span>•</span>
-            <span>{priceForTwo}</span>
+            <span>Price Starts from ₹{startingPrice}</span>
           </div>
         </div>
       </div>

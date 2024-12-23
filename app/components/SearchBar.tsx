@@ -54,7 +54,7 @@ interface SearchBarProps {
 const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   // State management
   const [location, setLocation] = useState('');
-  const [displayLocation, setDisplayLocation] = useState('Mumbai'); // Persists the selected location for display
+  const [displayLocation, setDisplayLocation] = useState('Siliguri'); // Persists the selected location for display
   const [test, setTest] = useState('');
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
   const [showTestSuggestions, setShowTestSuggestions] = useState(false);
@@ -114,7 +114,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   // Initialize component with default location
   useEffect(() => {
     setIsClient(true);
-    handleLocationChange('Mumbai');
+    handleLocationChange('Siliguri');
   }, []);
 
   /**

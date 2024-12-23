@@ -221,11 +221,9 @@ export const mockPathologyDetails = {
   startingPrice: 299,
   address: "123, Hospital Road, Khalpara, Siliguri - 734001, West Bengal",
   phone: "+91 98765 43210",
-  timings: {
-    open: "07:00",
-    close: "20:00",
-    days: "Monday to Saturday",
-  },
+  openingTime: "9:00 AM",
+  closingTime: "8:00 PM",
+  workingDays: "Monday to Saturday",
   images: [
     {
       src: heroImage.src,
